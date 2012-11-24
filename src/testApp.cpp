@@ -10,45 +10,30 @@ ofVec3f centroid;
 int pMouseX, pMouseY;
 
 ofxSimpleGuiTitle *status;
-bool bLoadMLP, bLoadSeq, bSimulation, bSwap, bNext, bPrev;
+ofxSimpleGuiToggle *calibratedButton;
+bool bLoadMLP;
 
-void drawAxes(ofVec3f center){
-    ofPushMatrix();
-    ofTranslate(center);
-    ofPushStyle();
-    ofSetColor(255, 0, 0);
-    ofLine(0, 0, 0, 200, 0, 0);
-    
-    ofSetColor(0, 255, 0);
-    ofLine(0, 0, 0, 0, 200, 0);
-    
-    ofSetColor(0, 0, 255);
-    ofLine(0, 0, 0, 0, 0, 200);
-    ofPopStyle();
-    ofPopMatrix();
-}
-
-void pivot(ofVec3f center, float aX, float aY, float aZ){
-    ofTranslate(center);
-    ofRotateX(aX);
-    ofRotateY(aY);
-    ofRotateZ(aZ);
-    ofTranslate(-center);
-}
 
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    ofBackground(0);
-    ofSetFrameRate(60);
+    ofBackground(50);
+    ofSetFrameRate(30);
     
     int PORT = 12000;
-	receiver.setup(PORT);
+    int REMOTE_PORT = 12000;
+    string REMOTE_HOST = "169.254.0.1";
     
-    sprintf(oscStatus, "[LOCALPORT] %d\n", PORT);
+	receiver.setup(PORT);
+    sender.setup(REMOTE_HOST, REMOTE_PORT);
+    
+    sprintf(oscStatus, "[LOCALPORT] %d\n[REMOTE PORT] (%s, %5d)\n", PORT, REMOTE_HOST.c_str(), REMOTE_PORT);
     
     gui.setup();
 	gui.addTitle("TRACKER \n[i] hide controls");
+    gui.addToggle("TRACK", bTracking);
+    calibratedButton = &gui.addToggle("CALIBRATED", bCalibrated);
+    gui.addToggle("SAVE", bSaving);
     status = &gui.addTitle("STATUS");
     gui.addButton("Load MeshLab File", bLoadMLP);
     gui.addSlider("Zoom", camZoom, -5000, 5000).setSmoothing(0.9);
@@ -81,13 +66,17 @@ void testApp::setup(){
                 kinects[i].setColor(ofColor(0xFFFFFF));
                 break;
         }
-
     
+    bTracking = false;
+    bCalibrated = false;
+    bSaving = false;
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
     processOSC();
+    
+    //-------------------------
     
     if(bLoadMLP){
         bLoadMLP = false;
@@ -95,6 +84,36 @@ void testApp::update(){
         for(int i = 0; i < K; i++)
             kinects[i].setMatrix(matrixData.getMatrix(i));
     }
+    
+    //-------------------------
+    
+    if(bTracking){
+        if(!bCalibrated) {
+            bCalibrated = match.startTracking(kinects, trackers);
+        }
+        else{
+            for(int i = 0; i < N; i++)
+                trackers[i].resetCandidates();
+            
+            match.matchCandidates(kinects, trackers);
+            
+            for(int i = 0; i < N; i++)
+                trackers[i].match();
+        }
+    }
+    else{
+        bCalibrated = false;
+    }
+    
+    //-------------------------
+    
+    sendDistances();
+    sendPositions();
+    if(ofGetFrameNum() % 30 == 0)
+        sendPing();
+    
+    
+    //-------------------------
     
     
     char msg[2048];
@@ -107,7 +126,9 @@ void testApp::update(){
     }
     
     status->setName(msg);
-    status->setSize(400, 100);
+    status->setSize(400, 200);
+    calibratedButton ->setValue(bCalibrated);
+    
 }
 
 //--------------------------------------------------------------
@@ -126,9 +147,38 @@ void testApp::draw(){
     pivot(centroid, camRotX, camRotY, 0);
     drawAxes(centroid);
     
+    ofPushStyle();
+    
+    //-------------------------
     for(int i = 0; i < K; i++)
         kinects[i].draw();
     
+    for(int i = 0; i < N; i++)
+        trackers[i].draw();
+    
+    //-------------------------
+    
+    //-------------------------
+    
+    for(int i = 0; i < N - 1; i++)
+        for(int j = 1; j < N; j++){
+            setLineColor(i + j);
+            ofLine(trackers[i].pos, trackers[j].pos);
+        }
+    
+    //-------------------------
+    ofEnableAlphaBlending();
+    ofSetColor(255, 0, 0, 50);
+    ofBeginShape();
+    for(int i = 0; i < N; i++)
+        ofVertex(trackers[i].pos);
+    ofEndShape();
+    ofDisableAlphaBlending();
+    //-------------------------
+    
+    ofPopStyle();
+   
+
     ofPopMatrix();
 
     cam.end();
@@ -242,10 +292,75 @@ void testApp::processOSC(){
                 pos.z = ofToFloat(comData[4]);
                 kinects[_k].addCOM(pos);
             }
-
-            
         }
-        
-	}
+	}    
+}
+
+void testApp::setLineColor(int i){
+    switch(i){
+        case 1:
+            ofSetHexColor(0xFF0000);
+            break;
+        case 2:
+            ofSetHexColor(0x00FF00);
+            break;
+        case 3:
+            ofSetHexColor(0x0000FF);
+            break;
+        default:
+            ofSetHexColor(0xFFFFFF);
+            break;
+    }
+}
+void testApp::drawAxes(ofVec3f center){
+    ofPushMatrix();
+    ofTranslate(center);
+    ofPushStyle();
+    ofSetColor(255, 0, 0);
+    ofLine(0, 0, 0, 200, 0, 0);
     
+    ofSetColor(0, 255, 0);
+    ofLine(0, 0, 0, 0, 200, 0);
+    
+    ofSetColor(0, 0, 255);
+    ofLine(0, 0, 0, 0, 0, 200);
+    ofPopStyle();
+    ofPopMatrix();
+}
+
+void testApp::pivot(ofVec3f center, float aX, float aY, float aZ){
+    ofTranslate(center);
+    ofRotateX(aX);
+    ofRotateY(aY);
+    ofRotateZ(aZ);
+    ofTranslate(-center);
+}
+void testApp::sendPing(){
+    ofxOscMessage m;
+    m.setAddress("/ping");
+    sender.sendMessage(m);
+}
+
+void testApp::sendPositions(){
+    
+    ofxOscMessage m;
+    m.setAddress("/positions");
+    for(int i = 0; i < N; i++){
+        m.addFloatArg(trackers[i].pos.x);
+        m.addFloatArg(trackers[i].pos.y);
+        m.addFloatArg(trackers[i].pos.z);
+    }
+    
+    sender.sendMessage(m);
+}
+
+void testApp::sendDistances() {
+    
+    ofxOscMessage m;
+    m.setAddress("/distances");
+    for(int i = 0; i < N - 1; i++)
+        for(int j = 1; j < N; j++){
+            m.addFloatArg(trackers[i].pos.distance(trackers[j].pos));
+        }
+    sender.sendMessage(m);
 }

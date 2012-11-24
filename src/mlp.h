@@ -6,7 +6,7 @@
 //
 // Load mesh Lab Project
 
-#include "testApp.h"
+#include "constants.h"
 
 #ifndef kinectMergerRealTime_mlp_h
 #define kinectMergerRealTime_mlp_h

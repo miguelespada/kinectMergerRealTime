@@ -11,7 +11,6 @@
 #include "ofxXmlSettings.h"
 #include "kinectData.h"
 
-#define K 2
 class merger  {
   
     

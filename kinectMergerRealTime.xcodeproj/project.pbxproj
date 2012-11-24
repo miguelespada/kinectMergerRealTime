@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4925548B16564643000FDE0D /* merger.h in Sources */ = {isa = PBXBuildFile; fileRef = 4925548A1656373D000FDE0D /* merger.h */; };
 		4934B2411659668500FBEA73 /* ofxMSAInteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4934B23D1659668500FBEA73 /* ofxMSAInteractiveObject.cpp */; };
 		494898531657920D009AA3FF /* ofxSimpleGuiButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4948982F1657920D009AA3FF /* ofxSimpleGuiButton.cpp */; };
 		494898541657920D009AA3FF /* ofxSimpleGuiColorPicker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 494898311657920D009AA3FF /* ofxSimpleGuiColorPicker.cpp */; };
@@ -95,7 +94,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4925548A1656373D000FDE0D /* merger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = merger.h; sourceTree = "<group>"; };
 		4934B23D1659668500FBEA73 /* ofxMSAInteractiveObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxMSAInteractiveObject.cpp; sourceTree = "<group>"; };
 		4934B23E1659668500FBEA73 /* ofxMSAInteractiveObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMSAInteractiveObject.h; sourceTree = "<group>"; };
 		4948982F1657920D009AA3FF /* ofxSimpleGuiButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxSimpleGuiButton.cpp; sourceTree = "<group>"; };
@@ -172,6 +170,9 @@
 		49501ED91660B7D000B6756B /* ofxOscSender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxOscSender.cpp; sourceTree = "<group>"; };
 		49501EDA1660B7D000B6756B /* ofxOscSender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxOscSender.h; sourceTree = "<group>"; };
 		49501EED1660BAD900B6756B /* mlp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mlp.h; sourceTree = "<group>"; };
+		49501EEF1660EEFE00B6756B /* tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
+		49501EF01660F82A00B6756B /* constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = constants.h; sourceTree = "<group>"; };
+		49501EF11660F9D700B6756B /* matcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = matcher.h; sourceTree = "<group>"; };
 		4954A6ED1658E41200928518 /* ofxTimeMeasurements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTimeMeasurements.cpp; sourceTree = "<group>"; };
 		4954A6EE1658E41200928518 /* ofxTimeMeasurements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTimeMeasurements.h; sourceTree = "<group>"; };
 		4981148516577AFC0046EF85 /* kinectData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = kinectData.h; sourceTree = "<group>"; };
@@ -232,9 +233,10 @@
 		49255489165636FF000FDE0D /* modes */ = {
 			isa = PBXGroup;
 			children = (
-				4925548A1656373D000FDE0D /* merger.h */,
+				49501EEF1660EEFE00B6756B /* tracker.h */,
 				49501EED1660BAD900B6756B /* mlp.h */,
 				4981148516577AFC0046EF85 /* kinectData.h */,
+				49501EF11660F9D700B6756B /* matcher.h */,
 			);
 			name = modes;
 			sourceTree = "<group>";
@@ -546,6 +548,7 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
+				49501EF01660F82A00B6756B /* constants.h */,
 				49255489165636FF000FDE0D /* modes */,
 			);
 			path = src;
@@ -647,7 +650,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4925548B16564643000FDE0D /* merger.h in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* testApp.cpp in Sources */,
 				494898531657920D009AA3FF /* ofxSimpleGuiButton.cpp in Sources */,

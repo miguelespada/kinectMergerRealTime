@@ -4,8 +4,10 @@
 #include "ofxOsc.h"
 #include "merger.h"
 #include "mlp.h"
+#include "tracker.h"
+#include "constants.h"
+#include "matcher.h"
 
-#define K 2
 
 class testApp : public ofBaseApp{
   public:
@@ -29,5 +31,21 @@ class testApp : public ofBaseApp{
     mlp matrixData;
     
     ofxOscReceiver receiver;
+    ofxOscSender sender;
+
+    
     kinectData kinects[K];
+    tracker trackers[N];
+    matcher match;
+    bool bTracking, bCalibrated, bSaving;
+    
+     
+    void setLineColor(int i);
+    void drawAxes(ofVec3f center);
+    
+    void pivot(ofVec3f center, float aX, float aY, float aZ);
+    void sendPing();
+    void sendDistances();
+    void sendPositions();
+
 };
