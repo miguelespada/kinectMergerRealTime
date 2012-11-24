@@ -859,7 +859,7 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../ofxOpenNI/mac/copy_to_data_openni_path/lib\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../ofxOpenNI copy/ofxOpenNI/mac/copy_to_data_openni_path/lib\"";
 				PRODUCT_NAME = kinectMergerRealTimeDebug;
-				SDKROOT = macosx;
+				SDKROOT = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -952,7 +952,7 @@
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../ofxOpenNI/mac/copy_to_data_openni_path/lib\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../../ofxOpenNI copy/ofxOpenNI/mac/copy_to_data_openni_path/lib\"";
 				PRODUCT_NAME = kinectMergerRealTime;
-				SDKROOT = macosx;
+				SDKROOT = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

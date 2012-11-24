@@ -20,12 +20,7 @@ class kinectData{
     int lastData = 0;
     
     public:
-    void clearOldData(int frameNum){
-        if(lastData < frameNum){
-            clear();
-            lastData = frameNum;
-        }
-    }
+   
     void setColor(ofColor _c){
         c = _c;
     }
@@ -54,16 +49,22 @@ class kinectData{
     ofVec3f getCentroid(){
         return points.getCentroid();
     }
-    void clear(){
-        points.clear();
+    void clearCOM(){
         coms.clear();
+    }
+    void clearMesh(){
+        points.clear();
     }
     void addCOM(ofVec3f c){
         c = M.postMult(c);
-        for (vector<ofVec3f>::iterator it = coms.begin(); it!=coms.end(); ++it){
-            if(c.z < (*it).z){
-                coms.insert(it, c);
-                break;
+        if(coms.size() == 0)
+            coms.push_back(c);
+        else{
+            for (vector<ofVec3f>::iterator it = coms.begin(); it!=coms.end(); ++it){
+                if(c.z < (*it).z){
+                    coms.insert(it, c);
+                    break;
+                }
             }
         }
        
@@ -75,12 +76,18 @@ class kinectData{
         return coms[i];
     }
     void getStatus(char *str, int i){
-        char comPos[256];
-        for (vector<ofVec3f>::iterator it = coms.begin(); it!=coms.end(); ++it)
+        char comPos[50];
+        char comPosAll[400];
+        strcpy(comPosAll, "");
+        for (vector<ofVec3f>::iterator it = coms.begin(); it!=coms.end(); ++it){
             sprintf(comPos, "(%4.f, %4.f, %4.f) ", (*it).x, (*it).y, (*it).z);
+            strcat(comPosAll, comPos);
+        }
         
+    
         sprintf(str, "[KINECT %1d]: %4d point data\n%s\n"
-                , i, getNumVertices(), comPos);
+                , i, getNumVertices(), comPosAll);
+        
     }
     
    

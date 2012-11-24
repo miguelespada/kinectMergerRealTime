@@ -18,10 +18,10 @@ bool bLoadMLP;
 void testApp::setup(){
     
     ofBackground(50);
-    ofSetFrameRate(30);
+    ofSetFrameRate(15);
     
-    int PORT = 12000;
-    int REMOTE_PORT = 12000;
+    int PORT = 12001;
+    int REMOTE_PORT = 12003;
     string REMOTE_HOST = "169.254.0.1";
     
 	receiver.setup(PORT);
@@ -70,10 +70,19 @@ void testApp::setup(){
     bTracking = false;
     bCalibrated = false;
     bSaving = false;
+    
+    
+    while(receiver.hasWaitingMessages()){
+		ofxOscMessage m;
+		receiver.getNextMessage(&m);
+        cout << "-";
+    }
 }
 
 //--------------------------------------------------------------
 void testApp::update(){
+    for(int i = 0; i < K; i++)
+        kinects[i].clearMesh();
     processOSC();
     
     //-------------------------
@@ -119,8 +128,9 @@ void testApp::update(){
     char msg[2048];
     matrixData.getStatus(msg);
     strcat(msg, oscStatus);
+    
+    char kinectMsg[500];
     for(int i = 0; i < K; i++){
-        char kinectMsg[500];
         kinects[i].getStatus(kinectMsg, i);
         strcat(msg, kinectMsg);
     }
@@ -260,40 +270,49 @@ void testApp::dragEvent(ofDragInfo dragInfo){
 void testApp::processOSC(){
     
 	while(receiver.hasWaitingMessages()){
+        
 		ofxOscMessage m;
 		receiver.getNextMessage(&m);
 		if(m.getAddress() == "/pc"){
             int _k = m.getArgAsInt32(0);
-            kinects[_k].clearOldData(ofGetFrameNum());
             if(_k < K){
                 unsigned long l;
-                char * data = m.getArgAsBlob(2, l);
+                unsigned char *data;
+                data = m.getArgAsBlob(2, l);
                 for(int i = 0; i < l; i += 6){
                     ofVec3f p;
                     p.x = ((int)data[i + 1] << 8) | ((int)data[i] & 0xFF);
                     p.y = ((int)data[i + 3] << 8) | ((int)data[i + 2] & 0xFF);
                     p.z = ((int)data[i + 5] << 8) | ((int)data[i + 4] & 0xFF);
-                    kinects[_k].addPoint(p);
+                    if(p.z > 0)
+                        kinects[_k].addPoint(p);
                 }
             }
             
 		}
         
 		if(m.getAddress() == "/com"){
+            
+            
             int _k = m.getArgAsInt32(0);
-            kinects[_k].clearOldData(ofGetFrameNum());
+            
+            kinects[_k].clearCOM();
             string s = m.getArgAsString(1);
             vector<string> tokens =ofSplitString(s, ",");
+            
             for (vector<string>::iterator it = tokens.begin(); it!=tokens.end(); ++it) {
                 vector<string>comData = ofSplitString(*it, " ");
-                ofVec3f pos;
-                pos.x = ofToFloat(comData[2]);
-                pos.y = ofToFloat(comData[3]);
-                pos.z = ofToFloat(comData[4]);
-                kinects[_k].addCOM(pos);
+                if(comData.size() == 5){
+                    ofVec3f pos;
+                    pos.x = ofToFloat(comData[2]);
+                    pos.y = ofToFloat(comData[3]);
+                    pos.z = ofToFloat(comData[4]);
+                    kinects[_k].addCOM(pos);
+                }
             }
         }
-	}    
+	}
+    
 }
 
 void testApp::setLineColor(int i){
