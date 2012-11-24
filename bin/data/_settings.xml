@@ -1,0 +1,26 @@
+<controls>
+    <Button_Load_MeshLab_File>
+        <name>Load MeshLab File</name>
+        <value>0</value>
+    </Button_Load_MeshLab_File>
+    <SliderFloat_Zoom>
+        <name>Zoom</name>
+        <value>-800</value>
+    </SliderFloat_Zoom>
+    <SliderFloat_camPosX>
+        <name>camPosX</name>
+        <value>16</value>
+    </SliderFloat_camPosX>
+    <SliderFloat_camPosY>
+        <name>camPosY</name>
+        <value>-6</value>
+    </SliderFloat_camPosY>
+    <SliderFloat_camRotX>
+        <name>camRotX</name>
+        <value>30.9766</value>
+    </SliderFloat_camRotX>
+    <SliderFloat_camRotY>
+        <name>camRotY</name>
+        <value>0</value>
+    </SliderFloat_camRotY>
+</controls>
