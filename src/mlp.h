@@ -44,7 +44,7 @@ private:
     }
     
     public:
-    mlp(){
+    void setup(){
         cout << "loading " << "xmlSettings.xml" << endl;
         
         if( XML.loadFile(ofToDataPath("xmlSettings.xml")) ){
@@ -54,6 +54,7 @@ private:
         }
         matrixFile= XML.getValue("MATRIX_FILE", "");
         path= XML.getValue("MATRIX_PATH", "");
+        openMeshLabProject();
     }
     
     void getMatrixFile(){

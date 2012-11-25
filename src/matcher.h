@@ -21,6 +21,7 @@ private:
     bool startTracking(kinectData kinect, tracker *trackers){
         if (kinect.getCOMsize() != N) return false;
         
+        
         for (int i = 0; i < N; i++)
             trackers[i].pos = kinect.getCOM(i);
         

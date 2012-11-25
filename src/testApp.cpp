@@ -18,9 +18,9 @@ bool bLoadMLP;
 void testApp::setup(){
     
     ofBackground(50);
-    ofSetFrameRate(15);
+    ofSetFrameRate(60);
     
-    int PORT = 12001;
+    int PORT = 12005;
     int REMOTE_PORT = 12003;
     string REMOTE_HOST = "169.254.0.1";
     
@@ -71,6 +71,7 @@ void testApp::setup(){
     bCalibrated = false;
     bSaving = false;
     
+    matrixData.setup();
     
     while(receiver.hasWaitingMessages()){
 		ofxOscMessage m;
@@ -81,8 +82,6 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-    for(int i = 0; i < K; i++)
-        kinects[i].clearMesh();
     processOSC();
     
     //-------------------------
@@ -163,28 +162,28 @@ void testApp::draw(){
     for(int i = 0; i < K; i++)
         kinects[i].draw();
     
-    for(int i = 0; i < N; i++)
-        trackers[i].draw();
     
-    //-------------------------
+    if(bCalibrated && bTracking){
+        for(int i = 0; i < N; i++)
+            trackers[i].draw();
+        
+        for(int i = 0; i < N - 1; i++)
+            for(int j = 1; j < N; j++){
+                setLineColor(i + j);
+                ofLine(trackers[i].pos, trackers[j].pos);
+            }
+        
+        //-------------------------
+        ofEnableAlphaBlending();
+        ofSetColor(255, 0, 0, 50);
+        ofBeginShape();
+        for(int i = 0; i < N; i++)
+            ofVertex(trackers[i].pos);
+        ofEndShape();
+        ofDisableAlphaBlending();
+        //-------------------------
+    }
     
-    //-------------------------
-    
-    for(int i = 0; i < N - 1; i++)
-        for(int j = 1; j < N; j++){
-            setLineColor(i + j);
-            ofLine(trackers[i].pos, trackers[j].pos);
-        }
-    
-    //-------------------------
-    ofEnableAlphaBlending();
-    ofSetColor(255, 0, 0, 50);
-    ofBeginShape();
-    for(int i = 0; i < N; i++)
-        ofVertex(trackers[i].pos);
-    ofEndShape();
-    ofDisableAlphaBlending();
-    //-------------------------
     
     ofPopStyle();
    
@@ -271,21 +270,23 @@ void testApp::processOSC(){
     
 	while(receiver.hasWaitingMessages()){
         
+        char *data;
 		ofxOscMessage m;
 		receiver.getNextMessage(&m);
 		if(m.getAddress() == "/pc"){
             int _k = m.getArgAsInt32(0);
+            int f = m.getArgAsInt32(4);
+            kinects[_k].clearMesh(f);
             if(_k < K){
                 unsigned long l;
-                unsigned char *data;
                 data = m.getArgAsBlob(2, l);
-                for(int i = 0; i < l; i += 6){
+                int d = m.getArgAsInt32(3);
+                for(int i = 0; i < d * 6; i += 6){
                     ofVec3f p;
-                    p.x = ((int)data[i + 1] << 8) | ((int)data[i] & 0xFF);
-                    p.y = ((int)data[i + 3] << 8) | ((int)data[i + 2] & 0xFF);
-                    p.z = ((int)data[i + 5] << 8) | ((int)data[i + 4] & 0xFF);
-                    if(p.z > 0)
-                        kinects[_k].addPoint(p);
+                    p.x = ((short)data[i + 1] << 8) | ((short)data[i] & 0xFF);
+                    p.y = ((short)data[i + 3] << 8) | ((short)data[i + 2] & 0xFF);
+                    p.z = ((short)data[i + 5] << 8) | ((short)data[i + 4] & 0xFF);
+                    kinects[_k].addPoint(p);
                 }
             }
             
@@ -295,8 +296,8 @@ void testApp::processOSC(){
             
             
             int _k = m.getArgAsInt32(0);
-            
             kinects[_k].clearCOM();
+            
             string s = m.getArgAsString(1);
             vector<string> tokens =ofSplitString(s, ",");
             
@@ -304,6 +305,7 @@ void testApp::processOSC(){
                 vector<string>comData = ofSplitString(*it, " ");
                 if(comData.size() == 5){
                     ofVec3f pos;
+                    
                     pos.x = ofToFloat(comData[2]);
                     pos.y = ofToFloat(comData[3]);
                     pos.z = ofToFloat(comData[4]);

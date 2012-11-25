@@ -18,7 +18,7 @@ class kinectData{
     ofMatrix4x4 M;
     ofColor c;
     int lastData = 0;
-    
+    int pFrame = -1;
     public:
    
     void setColor(ofColor _c){
@@ -33,12 +33,17 @@ class kinectData{
     void draw(){
         ofPushStyle();
         ofSetColor(c);
+    
         points.drawVertices();
         
         for (vector<ofVec3f>::iterator it = coms.begin(); it!=coms.end(); ++it){
-            ofTranslate((*it));
-            ofSetColor(255);
-            ofSphere(50);
+            if((*it).z > 0){
+                ofPushMatrix();
+                ofTranslate((*it));
+                ofSetColor(255);
+                ofSphere(10);
+                ofPopMatrix();
+            }
         }
         ofPopStyle();
         
@@ -50,24 +55,16 @@ class kinectData{
         return points.getCentroid();
     }
     void clearCOM(){
-        coms.clear();
+            coms.clear();
     }
-    void clearMesh(){
-        points.clear();
+    void clearMesh(int frame){
+        if(frame != pFrame){
+            points.clear();
+            pFrame = frame;
+        }
     }
     void addCOM(ofVec3f c){
-        c = M.postMult(c);
-        if(coms.size() == 0)
-            coms.push_back(c);
-        else{
-            for (vector<ofVec3f>::iterator it = coms.begin(); it!=coms.end(); ++it){
-                if(c.z < (*it).z){
-                    coms.insert(it, c);
-                    break;
-                }
-            }
-        }
-       
+        coms.push_back(c);
     }
     int getCOMsize() {
         return coms.size();
