@@ -355,7 +355,7 @@
 				49501ED01660B7D000B6756B /* src */,
 			);
 			name = ofxOsc;
-			path = ../../../addons/ofxOsc;
+			path = ../../../../addons/ofxOsc;
 			sourceTree = "<group>";
 		};
 		49501EB31660B7D000B6756B /* libs */ = {
@@ -473,7 +473,6 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
-				49501EB11660B7D000B6756B /* ofxOsc */,
 				4934B22F1659668500FBEA73 /* ofxMSAInteractiveObject */,
 				4954A6E51658E41200928518 /* ofxTimeMeasurements */,
 				4948986616579257009AA3FF /* ofxXmlSettings */,
@@ -545,6 +544,7 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				49501EB11660B7D000B6756B /* ofxOsc */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
