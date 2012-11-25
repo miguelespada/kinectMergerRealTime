@@ -12,12 +12,12 @@ int pMouseX, pMouseY;
 ofxSimpleGuiTitle *status;
 ofxSimpleGuiToggle *calibratedButton;
 bool bLoadMLP;
-
+int frame;
 
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    ofBackground(50);
+    ofBackground(0);
     ofSetFrameRate(60);
     
     int PORT = 12005;
@@ -48,28 +48,12 @@ void testApp::setup(){
     for(int i = 0; i < K; i++)
         kinects[i].setMatrix(matrixData.getMatrix(i));
     
-    for(int i = 0; i < K; i++)
-        switch(i){
-            case 0:
-                kinects[i].setColor(ofColor(0xE0D0AA));
-                break;
-            case 1:
-                kinects[i].setColor(ofColor(0x8DA893));
-                break;
-            case 2:
-                kinects[i].setColor(ofColor(0x1DA813));
-                break;
-            case 3:
-                kinects[i].setColor(ofColor(0x0DFF192));
-                break;
-            default:
-                kinects[i].setColor(ofColor(0xFFFFFF));
-                break;
-        }
+   
     
     bTracking = false;
     bCalibrated = false;
     bSaving = false;
+    pbSaving = false;
     
     matrixData.setup();
     
@@ -117,6 +101,20 @@ void testApp::update(){
     
     sendDistances();
     sendPositions();
+    
+    if(bSaving){
+        if(!pbSaving){
+            frame = 0;
+            pbSaving = true;
+        }
+        sendSaving(frame);
+        frame += 1;
+    }
+    else{
+        pbSaving = false;
+    }
+        
+        
     if(ofGetFrameNum() % 30 == 0)
         sendPing();
     
@@ -135,7 +133,7 @@ void testApp::update(){
     }
     
     status->setName(msg);
-    status->setSize(400, 200);
+    status->setSize(300, 200);
     calibratedButton ->setValue(bCalibrated);
     
 }
@@ -154,6 +152,7 @@ void testApp::draw(){
     ofTranslate(camPosX, camPosY, camZoom);
     
     pivot(centroid, camRotX, camRotY, 0);
+    ofScale(-1.0, 1.0, 1.0);
     drawAxes(centroid);
     
     ofPushStyle();
@@ -170,20 +169,20 @@ void testApp::draw(){
         for(int i = 0; i < N - 1; i++)
             for(int j = 1; j < N; j++){
                 setLineColor(i + j);
-                ofLine(trackers[i].pos, trackers[j].pos);
+                ofLine(trackers[i].lerpedPos, trackers[j].lerpedPos);
             }
         
         //-------------------------
         ofEnableAlphaBlending();
         ofSetColor(255, 0, 0, 50);
+        ofFill();
         ofBeginShape();
         for(int i = 0; i < N; i++)
-            ofVertex(trackers[i].pos);
+            ofVertex(trackers[i].lerpedPos);
         ofEndShape();
         ofDisableAlphaBlending();
         //-------------------------
     }
-    
     
     ofPopStyle();
    
@@ -279,6 +278,7 @@ void testApp::processOSC(){
             kinects[_k].clearMesh(f);
             if(_k < K){
                 unsigned long l;
+                int id = m.getArgAsInt32(1);
                 data = m.getArgAsBlob(2, l);
                 int d = m.getArgAsInt32(3);
                 for(int i = 0; i < d * 6; i += 6){
@@ -286,16 +286,16 @@ void testApp::processOSC(){
                     p.x = ((short)data[i + 1] << 8) | ((short)data[i] & 0xFF);
                     p.y = ((short)data[i + 3] << 8) | ((short)data[i + 2] & 0xFF);
                     p.z = ((short)data[i + 5] << 8) | ((short)data[i + 4] & 0xFF);
-                    kinects[_k].addPoint(p);
+                    kinects[_k].addPoint(p, id);
                 }
             }
             
 		}
         
 		if(m.getAddress() == "/com"){
-            
-            
             int _k = m.getArgAsInt32(0);
+            
+            kinects[_k].setHost(m.getRemoteIp(), m.getRemotePort());
             kinects[_k].clearCOM();
             
             string s = m.getArgAsString(1);
@@ -367,9 +367,9 @@ void testApp::sendPositions(){
     ofxOscMessage m;
     m.setAddress("/positions");
     for(int i = 0; i < N; i++){
-        m.addFloatArg(trackers[i].pos.x);
-        m.addFloatArg(trackers[i].pos.y);
-        m.addFloatArg(trackers[i].pos.z);
+        m.addFloatArg(trackers[i].lerpedPos.x);
+        m.addFloatArg(trackers[i].lerpedPos.y);
+        m.addFloatArg(trackers[i].lerpedPos.z);
     }
     
     sender.sendMessage(m);
@@ -381,7 +381,12 @@ void testApp::sendDistances() {
     m.setAddress("/distances");
     for(int i = 0; i < N - 1; i++)
         for(int j = 1; j < N; j++){
-            m.addFloatArg(trackers[i].pos.distance(trackers[j].pos));
+            m.addFloatArg(trackers[i].lerpedPos.distance(trackers[j].lerpedPos));
         }
     sender.sendMessage(m);
+}
+void testApp::sendSaving(int frame){
+    for(int i = 0; i < K; i++)
+        kinects[i].sendSaving(frame);
+    
 }

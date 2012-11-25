@@ -17,7 +17,7 @@
     </Button_Load_MeshLab_File>
     <SliderFloat_Zoom>
         <name>Zoom</name>
-        <value>2570</value>
+        <value>260</value>
     </SliderFloat_Zoom>
     <SliderFloat_camPosX>
         <name>camPosX</name>
@@ -29,10 +29,10 @@
     </SliderFloat_camPosY>
     <SliderFloat_camRotX>
         <name>camRotX</name>
-        <value>5.8</value>
+        <value>-75.1</value>
     </SliderFloat_camRotX>
     <SliderFloat_camRotY>
         <name>camRotY</name>
-        <value>10.7</value>
+        <value>2.9</value>
     </SliderFloat_camRotY>
 </controls>

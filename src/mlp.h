@@ -103,7 +103,7 @@ private:
         openMeshLabProject();
     }
     void getStatus(char *str){
-            sprintf(str, "[ALIGMENT MATRIX]: %s\n", matrixFile.c_str());
+            sprintf(str, "[ALIGMENT MATRIX]:\n%s\n", matrixFile.c_str());
     }
     ofMatrix4x4 getMatrix(int i){
         return M[i];

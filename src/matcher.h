@@ -96,25 +96,7 @@ public:
             matchCandidates(kinects[i], trackers);
     }
     
-    /*
-    
-    void matchCandidatesBT(int k, int sol[]) {
-        for (int j = -1; j < coms.size(); j++) {
-            if (isSol(k, j, sol)) {
-                sol[k] = j;
-                if (k == N - 1) {
-                    float currentValue = distancias(sol);
-                    if (currentValue < bestValue) {
-                        for (int i = 0; i < N; i ++)
-                            bestSol[i] = sol[i];
-                        bestValue = currentValue;
-                    }
-                }
-                else
-                    matchCandidatesBT(k + 1, sol);
-            }
-        }
-    }*/
+
 };
 
 #endif

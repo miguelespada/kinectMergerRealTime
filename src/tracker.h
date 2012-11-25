@@ -16,7 +16,7 @@ public:
     vector<ofVec3f> candidates;
     ofVec3f pos;
     ofVec3f lerpedPos;
-    float smoothFactor=0.5;
+    float smoothFactor=0.1;
    
     void resetCandidates(){
         candidates.clear();
@@ -28,9 +28,9 @@ public:
     
     void draw(){
         ofPushMatrix();
-        ofSetColor(255);
+        ofSetColor(255, 150);
         ofTranslate(pos);
-        ofSphere(50);
+        ofSphere(10);
         ofPopMatrix();
     }
     
@@ -51,6 +51,7 @@ public:
         pos.x = (*closest).x;
         pos.y = (*closest).y;
         pos.z = (*closest).z;
+        lerp();
     }
     
 };
