@@ -45,22 +45,21 @@ void testApp::setup(){
 	gui.loadFromXML();
     gui.show();
     
+    
+    matrixData.setup();
     for(int i = 0; i < K; i++)
         kinects[i].setMatrix(matrixData.getMatrix(i));
     
-   
     
     bTracking = false;
     bCalibrated = false;
     bSaving = false;
     pbSaving = false;
     
-    matrixData.setup();
     
     while(receiver.hasWaitingMessages()){
 		ofxOscMessage m;
 		receiver.getNextMessage(&m);
-        cout << "-";
     }
 }
 
@@ -271,8 +270,14 @@ void testApp::processOSC(){
         
         char *data;
 		ofxOscMessage m;
-		receiver.getNextMessage(&m);
-		if(m.getAddress() == "/pc"){
+        receiver.getNextMessage(&m);
+        
+        if(m.getAddress() == "/ping"){
+            int _k = m.getArgAsInt32(0);
+            int port = m.getArgAsInt32(1);
+            kinects[_k].setHost(m.getRemoteIp(), port);
+        }
+		else if(m.getAddress() == "/pc"){
             int _k = m.getArgAsInt32(0);
             int f = m.getArgAsInt32(4);
             kinects[_k].clearMesh(f);
@@ -295,7 +300,6 @@ void testApp::processOSC(){
 		if(m.getAddress() == "/com"){
             int _k = m.getArgAsInt32(0);
             
-            kinects[_k].setHost(m.getRemoteIp(), m.getRemotePort());
             kinects[_k].clearCOM();
             
             string s = m.getArgAsString(1);

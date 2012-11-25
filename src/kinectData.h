@@ -76,6 +76,11 @@ class kinectData{
     int port = -1;
     
     public:
+    kinectData(){
+        port = -1;
+        sender = NULL;
+        ip = "";
+    }
     void setHost(string _ip, int _port){
         if(port == -1){
             sender = new ofxOscSender();
@@ -87,10 +92,12 @@ class kinectData{
     ~kinectData(){
     }
     void sendSaving(int frame){
-        ofxOscMessage m;
-        m.setAddress("/save");
-        m.addIntArg(frame);
-        sender->sendMessage(m);
+        if(port != -1){
+            ofxOscMessage m;
+            m.setAddress("/save");
+            m.addIntArg(frame);
+            sender->sendMessage(m);
+        }
     }
     
     void setColor(ofColor _c){
