@@ -36,6 +36,8 @@ void testApp::setup(){
     gui.addToggle("SAVE", bSaving);
     status = &gui.addTitle("STATUS");
     gui.addButton("Load MeshLab File", bLoadMLP);
+    gui.addButton("Reset player", bReset);
+
     gui.addSlider("Zoom", camZoom, -5000, 5000).setSmoothing(0.9);
     gui.addSlider("camPosX", camPosX, -200, 200).setSmoothing(0.9);;
     gui.addSlider("camPosY", camPosY, -200, 200).setSmoothing(0.9);;
@@ -55,6 +57,7 @@ void testApp::setup(){
     bCalibrated = false;
     bSaving = false;
     pbSaving = false;
+    bReset = false;
     
     
     while(receiver.hasWaitingMessages()){
@@ -100,7 +103,11 @@ void testApp::update(){
     
     sendDistances();
     sendPositions();
-    
+    if(bReset){
+        sendReset();
+        bReset = false;
+    }
+        
     if(bSaving){
         if(!pbSaving){
             frame = 0;
@@ -132,7 +139,7 @@ void testApp::update(){
     }
     
     status->setName(msg);
-    status->setSize(300, 200);
+    status->setSize(300, 250);
     calibratedButton ->setValue(bCalibrated);
     
 }
@@ -392,5 +399,10 @@ void testApp::sendDistances() {
 void testApp::sendSaving(int frame){
     for(int i = 0; i < K; i++)
         kinects[i].sendSaving(frame);
+    
+}
+void testApp::sendReset(){
+    for(int i = 0; i < K; i++)
+        kinects[i].sendReset();
     
 }

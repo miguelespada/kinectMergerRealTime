@@ -99,6 +99,13 @@ class kinectData{
             sender->sendMessage(m);
         }
     }
+    void sendReset(){
+        if(port != -1){
+            ofxOscMessage m;
+            m.setAddress("/reset");
+            sender->sendMessage(m);
+        }
+    }
     
     void setColor(ofColor _c){
         c = _c;

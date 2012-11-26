@@ -37,7 +37,7 @@ class testApp : public ofBaseApp{
     kinectData kinects[K];
     tracker trackers[N];
     matcher match;
-    bool bTracking, bCalibrated, bSaving, pbSaving;
+    bool bTracking, bCalibrated, bSaving, pbSaving, bReset;
     
      
     void setLineColor(int i);
@@ -48,4 +48,5 @@ class testApp : public ofBaseApp{
     void sendDistances();
     void sendPositions();
     void sendSaving(int frame);
+    void sendReset();
 };

@@ -1,11 +1,11 @@
 <controls>
     <Toggle_TRACK>
         <name>TRACK</name>
-        <value>0</value>
+        <value>1</value>
     </Toggle_TRACK>
     <Toggle_CALIBRATED>
         <name>CALIBRATED</name>
-        <value>0</value>
+        <value>1</value>
     </Toggle_CALIBRATED>
     <Toggle_SAVE>
         <name>SAVE</name>
@@ -15,24 +15,28 @@
         <name>Load MeshLab File</name>
         <value>0</value>
     </Button_Load_MeshLab_File>
+    <Button_Reset_player>
+        <name>Reset player</name>
+        <value>0</value>
+    </Button_Reset_player>
     <SliderFloat_Zoom>
         <name>Zoom</name>
-        <value>260</value>
+        <value>750</value>
     </SliderFloat_Zoom>
     <SliderFloat_camPosX>
         <name>camPosX</name>
-        <value>-200</value>
+        <value>-194</value>
     </SliderFloat_camPosX>
     <SliderFloat_camPosY>
         <name>camPosY</name>
-        <value>-200</value>
+        <value>-1044</value>
     </SliderFloat_camPosY>
     <SliderFloat_camRotX>
         <name>camRotX</name>
-        <value>0</value>
+        <value>1.80333</value>
     </SliderFloat_camRotX>
     <SliderFloat_camRotY>
         <name>camRotY</name>
-        <value>2.9</value>
+        <value>10.8</value>
     </SliderFloat_camRotY>
 </controls>
