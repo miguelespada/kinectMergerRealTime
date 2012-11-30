@@ -1,11 +1,11 @@
 <controls>
     <Toggle_TRACK>
         <name>TRACK</name>
-        <value>1</value>
+        <value>0</value>
     </Toggle_TRACK>
     <Toggle_CALIBRATED>
         <name>CALIBRATED</name>
-        <value>1</value>
+        <value>0</value>
     </Toggle_CALIBRATED>
     <Toggle_SAVE>
         <name>SAVE</name>

@@ -47,6 +47,7 @@ class testApp : public ofBaseApp{
     void sendPing();
     void sendDistances();
     void sendPositions();
+    void sendAngles();
     void sendSaving(int frame);
     void sendReset();
 };

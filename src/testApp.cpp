@@ -13,6 +13,7 @@ ofxSimpleGuiTitle *status;
 ofxSimpleGuiToggle *calibratedButton;
 bool bLoadMLP;
 int frame;
+vector<float> pDistances;
 
 //--------------------------------------------------------------
 void testApp::setup(){
@@ -20,8 +21,8 @@ void testApp::setup(){
     ofBackground(0);
     ofSetFrameRate(60);
     
-    int PORT = 12005;
-    int REMOTE_PORT = 12003;
+    int PORT = 12000;
+    int REMOTE_PORT = 12001;
     string REMOTE_HOST = "169.254.0.1";
     
 	receiver.setup(PORT);
@@ -103,6 +104,7 @@ void testApp::update(){
     
     sendDistances();
     sendPositions();
+    sendAngles();
     if(bReset){
         sendReset();
         bReset = false;
@@ -384,15 +386,55 @@ void testApp::sendPositions(){
     }
     
     sender.sendMessage(m);
+    
+    m.clear();
+    m.setAddress("/deltaPositions");
+    for(int i = 0; i < N; i++){
+        ofVec3f delta = trackers[i].lerpedPos - trackers[i].pLerpedPos;
+        m.addFloatArg(delta.x);
+        m.addFloatArg(delta.y);
+        m.addFloatArg(delta.z);
+    }
+    
+    sender.sendMessage(m);
+}
+
+
+
+
+void testApp::sendAngles() {
+    
+    ofxOscMessage m;
+    ofVec3f a(1, 0, 0);
+    m.setAddress("/angles");
+    for(int i = 0; i < N; i++){
+        m.addFloatArg(a.angle(trackers[i].v));
+    }
+    
 }
 
 void testApp::sendDistances() {
     
     ofxOscMessage m;
+    
+    m.setAddress("/deltaDistances");
+    if(pDistances.size() > 0){
+        int n = 0;
+        for(int i = 0; i < N - 1; i++)
+            for(int j = 1; j < N; j++){
+                float d = trackers[i].lerpedPos.distance(trackers[j].lerpedPos);
+                m.addFloatArg(d - pDistances[n]);
+                n ++;
+            }
+        sender.sendMessage(m);
+    }
+    pDistances.clear();
     m.setAddress("/distances");
     for(int i = 0; i < N - 1; i++)
         for(int j = 1; j < N; j++){
-            m.addFloatArg(trackers[i].lerpedPos.distance(trackers[j].lerpedPos));
+            float d = trackers[i].lerpedPos.distance(trackers[j].lerpedPos);
+            m.addFloatArg(d);
+            pDistances.push_back(d);
         }
     sender.sendMessage(m);
 }

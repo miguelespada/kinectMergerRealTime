@@ -16,14 +16,18 @@ public:
     vector<ofVec3f> candidates;
     ofVec3f pos;
     ofVec3f lerpedPos;
+    ofVec3f pLerpedPos;
     float smoothFactor=0.1;
+    ofVec3f v;
    
     void resetCandidates(){
         candidates.clear();
     }
     
     void lerp() {
+        pLerpedPos = lerpedPos;
         lerpedPos.interpolate(pos, smoothFactor);
+        v = lerpedPos - pLerpedPos;
     }
     
     void draw(){
