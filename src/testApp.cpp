@@ -13,7 +13,8 @@ ofxSimpleGuiTitle *status;
 ofxSimpleGuiToggle *calibratedButton;
 bool bLoadMLP;
 int frame;
-vector<float> pDistances;
+
+
 
 //--------------------------------------------------------------
 void testApp::setup(){
@@ -22,7 +23,7 @@ void testApp::setup(){
     ofSetFrameRate(60);
     
     int PORT = 12000;
-    int REMOTE_PORT = 12001;
+    int REMOTE_PORT = 12000;
     string REMOTE_HOST = "169.254.0.1";
     
 	receiver.setup(PORT);
@@ -35,7 +36,6 @@ void testApp::setup(){
     gui.addToggle("TRACK", bTracking);
     calibratedButton = &gui.addToggle("CALIBRATED", bCalibrated);
     gui.addToggle("SAVE", bSaving);
-    status = &gui.addTitle("STATUS");
     gui.addButton("Load MeshLab File", bLoadMLP);
     gui.addButton("Reset player", bReset);
 
@@ -45,14 +45,23 @@ void testApp::setup(){
     gui.addSlider("camRotX", camRotX, 0, 360).setSmoothing(0.9);;
     gui.addSlider("camRotY", camRotY, 0, 360).setSmoothing(0.9);;
     
+    status = &gui.addTitle("STATUS");
+    status->setNewColumn(true);
 	gui.loadFromXML();
     gui.show();
     
     
     matrixData.setup();
-    for(int i = 0; i < K; i++)
-        kinects[i].setMatrix(matrixData.getMatrix(i));
     
+    // Set space coordinates...
+    center = ofVec2f(300, 3100);
+    speaker1 = ofVec2f(-400, 4350);
+    refVector = center - speaker1;
+
+    for(int i = 0; i < K; i++){
+        kinects[i].setMatrix(matrixData.getMatrix(i));
+        kinects[i].setCenter(center, refVector);
+    }
     
     bTracking = false;
     bCalibrated = false;
@@ -65,11 +74,15 @@ void testApp::setup(){
 		ofxOscMessage m;
 		receiver.getNextMessage(&m);
     }
-}
+    }
 
 //--------------------------------------------------------------
 void testApp::update(){
+    for(int i = 0; i < K; i++)
+        kinects[i].markAsOld();
+    
     processOSC();
+   
     
     //-------------------------
     
@@ -104,7 +117,7 @@ void testApp::update(){
     
     sendDistances();
     sendPositions();
-    sendAngles();
+    sendAzimuts();
     if(bReset){
         sendReset();
         bReset = false;
@@ -139,9 +152,72 @@ void testApp::update(){
         kinects[i].getStatus(kinectMsg, i);
         strcat(msg, kinectMsg);
     }
+    char other[500];
+    sprintf(other, "\n[CENTER] %4.f, %4.f", center.x, center.y);
+    strcat(msg, other);
+    
+    
+    float delta[3];
+    int n = 0;
+
+    for(int i = 0; i < N - 1; i++)
+        for(int j = i + 1; j < N; j++){
+            delta[n] = trackers[i].lerpedPos.distance(trackers[j].lerpedPos);
+            n ++;
+        }
+    sprintf(other, "\n[DISTANCES] %4.f, %4.f, %4.f", delta[0], delta[1], delta[2]);
+    strcat(msg, other);
+
+    
+    n = 0;
+    for(int i = 0; i < N - 1; i++)
+        for(int j = i + 1; j < N; j++){
+            delta[n] = trackers[i].lerpedPos.distance(trackers[j].lerpedPos) -
+            trackers[i].pLerpedPos.distance(trackers[j].pLerpedPos) ;
+            n ++;
+        }
+    sprintf(other, "\n[DELTA DISTANCES] %4.f, %4.f, %4.f", delta[0], delta[1], delta[2]);
+    strcat(msg, other);
+    
+    int b;
+    bool cohesion = true;
+    bool separation = true;
+    for(int i = 0; i < n; i++){
+        cohesion = cohesion && (delta[i] <= -2);
+        separation = separation && (delta[i] >= 2);
+    }
+    if(cohesion) b = 1;
+    else if(separation) b = -1;
+    else b = 0;
+    sprintf(other, "\n[BEHAVIOUR] %d", b);
+    strcat(msg, other);
+
+    
+    
+    n = 0;
+    for(int i = 0; i < N; i++){
+        delta[n] = abs((trackers[i].lerpedPos - trackers[i].pLerpedPos).length());
+        n ++;
+    }
+    sprintf(other, "\n[SPEED] %4.f, %4.f, %4.f", delta[0], delta[1], delta[2]);
+    strcat(msg, other);
+    
+    
+    if(kinects[0].getCOMsize() > 0 && kinects[1].getCOMsize() > 0  ){
+        sprintf(other, "\n[COM 0 dist] %4.f", kinects[0].getCOM(0).distance(kinects[1].getCOM(0)));
+        strcat(msg, other);
+    }
+    if(bTracking && bCalibrated){
+        for(int i = 0; i < N; i++){
+            sprintf(other, "\n[TRACKER %d] %4.f %4.f %4.f", i, trackers[i].pos.x,
+                    trackers[i].pos.y, trackers[i].pos.z);
+            strcat(msg, other);
+            
+        }
+    }
     
     status->setName(msg);
-    status->setSize(300, 250);
+    status->setSize(300, 400);
     calibratedButton ->setValue(bCalibrated);
     
 }
@@ -149,6 +225,8 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     centroid = ofVec3f(0, 0, 4000);
+    centroid.x = center.x;
+    centroid.z = center.y;
     
 	cam.setPosition(ofVec3f(0, 0,-2000));
     cam.lookAt(centroid, ofVec3f(0,1,0));
@@ -199,8 +277,7 @@ void testApp::draw(){
 
     cam.end();
     
-    gui.draw();
-    
+    gui.draw();    
 }
 
 void testApp::keyPressed(int key){
@@ -208,7 +285,11 @@ void testApp::keyPressed(int key){
     switch (key ) {
         case 'i':
             gui.toggleDraw();
-            break;  
+            break;
+        case ' ':
+            bTracking = !bTracking;
+            gui.toggleDraw();
+            break;
         default:
             break;
     }
@@ -310,6 +391,7 @@ void testApp::processOSC(){
             int _k = m.getArgAsInt32(0);
             
             kinects[_k].clearCOM();
+            kinects[_k].markAsNew();
             
             string s = m.getArgAsString(1);
             vector<string> tokens =ofSplitString(s, ",");
@@ -325,6 +407,9 @@ void testApp::processOSC(){
                     kinects[_k].addCOM(pos);
                 }
             }
+            if(_k == 0) kinects[_k].addCOM(ofVec3f(-1700, 450, 3900)); //NUNO
+            
+
         }
 	}
     
@@ -378,22 +463,10 @@ void testApp::sendPing(){
 void testApp::sendPositions(){
     
     ofxOscMessage m;
-    m.setAddress("/positions");
-    for(int i = 0; i < N; i++){
-        m.addFloatArg(trackers[i].lerpedPos.x);
-        m.addFloatArg(trackers[i].lerpedPos.y);
-        m.addFloatArg(trackers[i].lerpedPos.z);
-    }
-    
-    sender.sendMessage(m);
-    
-    m.clear();
-    m.setAddress("/deltaPositions");
+    m.setAddress("/speed");
     for(int i = 0; i < N; i++){
         ofVec3f delta = trackers[i].lerpedPos - trackers[i].pLerpedPos;
-        m.addFloatArg(delta.x);
-        m.addFloatArg(delta.y);
-        m.addFloatArg(delta.z);
+        m.addFloatArg(abs(delta.length()));
     }
     
     sender.sendMessage(m);
@@ -401,40 +474,53 @@ void testApp::sendPositions(){
 
 
 
-
-void testApp::sendAngles() {
+void testApp::sendAzimuts() {
     
     ofxOscMessage m;
-    ofVec3f a(1, 0, 0);
-    m.setAddress("/angles");
+    m.setAddress("/azimuts");
     for(int i = 0; i < N; i++){
-        m.addFloatArg(a.angle(trackers[i].v));
+        ofVec2f v(trackers[i].lerpedPos.x - center.x, trackers[i].lerpedPos.z - center.y);
+        float angle  = v.angle(-refVector);
+        m.addFloatArg(angle);
+        m.addFloatArg(v.length());
     }
+    sender.sendMessage(m);
     
 }
 
 void testApp::sendDistances() {
     
-    ofxOscMessage m;
-    
-    m.setAddress("/deltaDistances");
-    if(pDistances.size() > 0){
+        float delta[N];
         int n = 0;
         for(int i = 0; i < N - 1; i++)
-            for(int j = 1; j < N; j++){
-                float d = trackers[i].lerpedPos.distance(trackers[j].lerpedPos);
-                m.addFloatArg(d - pDistances[n]);
+            for(int j = i + 1; j < N; j++){
+                delta[n] = trackers[i].lerpedPos.distance(trackers[j].lerpedPos) -
+                   trackers[i].pLerpedPos.distance(trackers[j].pLerpedPos) ;
                 n ++;
             }
+        
+    int b;
+    
+    ofxOscMessage m;
+        m.setAddress("/behaviour");
+        bool cohesion = true;
+        bool separation = true;
+        for(int i = 0; i < n; i++){
+            cohesion = cohesion && (delta[i] <= -2);
+            separation = separation && (delta[i] >= 2);
+        }
+        if(cohesion) b = 1;
+        else if(separation) b = -1;
+        else b = 0;
+        m.addIntArg(b);
         sender.sendMessage(m);
-    }
-    pDistances.clear();
+    
+    m.clear();
     m.setAddress("/distances");
     for(int i = 0; i < N - 1; i++)
-        for(int j = 1; j < N; j++){
+        for(int j = i + 1; j < N; j++){
             float d = trackers[i].lerpedPos.distance(trackers[j].lerpedPos);
             m.addFloatArg(d);
-            pDistances.push_back(d);
         }
     sender.sendMessage(m);
 }

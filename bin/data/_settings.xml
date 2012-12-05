@@ -21,22 +21,22 @@
     </Button_Reset_player>
     <SliderFloat_Zoom>
         <name>Zoom</name>
-        <value>750</value>
+        <value>1321</value>
     </SliderFloat_Zoom>
     <SliderFloat_camPosX>
         <name>camPosX</name>
-        <value>-194</value>
+        <value>-200</value>
     </SliderFloat_camPosX>
     <SliderFloat_camPosY>
         <name>camPosY</name>
-        <value>-200</value>
+        <value>142</value>
     </SliderFloat_camPosY>
     <SliderFloat_camRotX>
         <name>camRotX</name>
-        <value>1.8</value>
+        <value>0</value>
     </SliderFloat_camRotX>
     <SliderFloat_camRotY>
         <name>camRotY</name>
-        <value>10.8</value>
+        <value>152.6</value>
     </SliderFloat_camRotY>
 </controls>

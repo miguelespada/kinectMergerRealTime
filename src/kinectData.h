@@ -65,6 +65,8 @@ class kinectData{
     ofMesh points;
     vector<ofVec3f> coms;
     vector<cloud> meshes;
+    ofVec2f center;
+    ofVec2f ref;
     
     ofMatrix4x4 M;
     ofColor c;
@@ -75,7 +77,8 @@ class kinectData{
     string ip;
     int port = -1;
     
-    public:
+public:
+    bool bOld = true;
     kinectData(){
         port = -1;
         sender = NULL;
@@ -88,6 +91,10 @@ class kinectData{
             port = _port;
             sender->setup(ip, port);
         }
+    }
+    void setCenter(ofVec2f _c, ofVec2f _r){
+        ref = _r;
+        center = _c;
     }
     ~kinectData(){
     }
@@ -147,8 +154,14 @@ class kinectData{
         ofPopStyle();
         
     }
+    void markAsOld(){
+        bOld = true;
+    }
+    void markAsNew(){
+        bOld = false;
+    }
     void clearCOM(){
-            coms.clear();
+        coms.clear();
     }
     void clearMesh(int frame){
         if(frame != pFrame){
@@ -157,7 +170,6 @@ class kinectData{
         }
     }
     void addCOM(ofVec3f c){
-        
         c = M.postMult(c);
         if(coms.size() == 0){
             coms.push_back(c);
@@ -184,8 +196,12 @@ class kinectData{
         char comPosAll[400];
         strcpy(comPosAll, "");
         for(int i = 0; i < N; i++){
+            
+            ofVec2f pp;
+            pp.x = coms[i].x - center.x;
+            pp.y = coms[i].z - center.y;            
             if(i < coms.size()){
-                sprintf(comPos, "(%4.f, %4.f, %4.f) ", coms[i].x, coms[i].y, coms[i].z);
+                sprintf(comPos, "(%4.f, %4.f, %4.f) [%4.f, %4.f]", coms[i].x, coms[i].y, coms[i].z, pp.angle(-ref), pp.length());
                 strcat(comPosAll, comPos);
             }
             strcat(comPosAll, "\n");

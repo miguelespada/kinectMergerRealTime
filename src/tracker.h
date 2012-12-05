@@ -32,7 +32,7 @@ public:
     
     void draw(){
         ofPushMatrix();
-        ofSetColor(255, 150);
+        ofSetColor(255, 0, 255);
         ofTranslate(pos);
         ofSphere(10);
         ofPopMatrix();
@@ -57,6 +57,8 @@ public:
         pos.z = (*closest).z;
         lerp();
     }
+    
+    
     
 };
 

@@ -19,6 +19,7 @@ private:
     int bestValue;
   
     bool startTracking(kinectData kinect, tracker *trackers){
+        if(kinect.bOld) return false;
         if (kinect.getCOMsize() != N) return false;
         
         
@@ -56,13 +57,14 @@ private:
     float distances(int *sol, kinectData kinect, tracker *trackers) {
         float v = 0;
         for (int i = 0; i < N; i ++) {
-            if (sol[i] == -1) v += 1000;
+            if (sol[i] == -1) v += 10000;
             else v += kinect.getCOM(sol[i]).distance(trackers[i].pos);
         }
         return v;
     }
     
     void matchCandidatesBT(int k, int *sol, kinectData kinect, tracker *trackers){
+        if(kinect.bOld) return;
         for (int j = -1; j < kinect.getCOMsize(); j++) {
             if (isSolution(k, j, sol)) {
                 sol[k] = j;

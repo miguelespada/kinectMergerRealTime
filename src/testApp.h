@@ -47,7 +47,12 @@ class testApp : public ofBaseApp{
     void sendPing();
     void sendDistances();
     void sendPositions();
-    void sendAngles();
+    void sendAzimuts();
     void sendSaving(int frame);
     void sendReset();
+    
+    // For calculating the azimuts
+    ofVec2f center;
+    ofVec2f speaker1;
+    ofVec2f refVector;
 };
