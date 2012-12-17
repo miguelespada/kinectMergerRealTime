@@ -98,6 +98,13 @@ public:
             matchCandidates(kinects[i], trackers);
     }
     
+    void swap(tracker *t, int a, int b){
+        tracker aux;
+        aux = t[a];
+        t[a] = t[b];
+        t[b] = aux;
+    };
+    
 
 };
 

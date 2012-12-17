@@ -17,7 +17,7 @@ public:
     ofVec3f pos;
     ofVec3f lerpedPos;
     ofVec3f pLerpedPos;
-    float smoothFactor=0.1;
+    float smoothFactor=0.2;
     ofVec3f v;
    
     void resetCandidates(){

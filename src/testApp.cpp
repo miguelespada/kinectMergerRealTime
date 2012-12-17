@@ -44,17 +44,17 @@ void testApp::setup(){
     gui.addSlider("camPosY", camPosY, -200, 200).setSmoothing(0.9);;
     gui.addSlider("camRotX", camRotX, 0, 360).setSmoothing(0.9);;
     gui.addSlider("camRotY", camRotY, 0, 360).setSmoothing(0.9);;
-    
     status = &gui.addTitle("STATUS");
     status->setNewColumn(true);
 	gui.loadFromXML();
     gui.show();
     
+    camRotX = 90;
     
     matrixData.setup();
     
     // Set space coordinates...
-    center = ofVec2f(300, 3100);
+    center = ofVec2f(550, 2900);
     speaker1 = ofVec2f(-400, 4350);
     refVector = center - speaker1;
 
@@ -290,6 +290,15 @@ void testApp::keyPressed(int key){
             bTracking = !bTracking;
             gui.toggleDraw();
             break;
+        case 'z':
+            match.swap(trackers, 0, 1);
+            break;
+        case 'x':
+            match.swap(trackers, 0, 2);
+            break;
+        case 'c':
+            match.swap(trackers, 1, 2);
+            break;
         default:
             break;
     }
@@ -355,7 +364,7 @@ void testApp::dragEvent(ofDragInfo dragInfo){
 }
 
 void testApp::processOSC(){
-    
+   
 	while(receiver.hasWaitingMessages()){
         
         char *data;
@@ -407,7 +416,13 @@ void testApp::processOSC(){
                     kinects[_k].addCOM(pos);
                 }
             }
-            if(_k == 0) kinects[_k].addCOM(ofVec3f(-1700, 450, 3900)); //NUNO
+            
+            if(_k == 0){
+                //kinects[_k].addCOM(ofVec3f(-1700, 1000, 3900)); //NUNO
+                //kinects[_k].addCOM(ofVec3f(1500, 0, 3700)); //NUNO2
+                //kinects[0].addCOM(ofVec3f(0, 0, 1500)); //NUNO3
+            }
+
             
 
         }
